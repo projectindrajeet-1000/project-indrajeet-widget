@@ -1,186 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Project Indrajeet — Deep Carpet Overlay</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Indrajeet — Precision Floor HUD</title>
+
 <style>
   :root{
     --white:#ffffff;
-    --muted:rgba(255,255,255,.97);
+    --muted:rgba(255,255,255,.96);
+    --cyan:#25e7ff;
+    --violet:#9858ff;
+    --pink:#ff45d5;
+    --orange:#ff9c24;
+    --gold:#ffd14a;
 
-    --cyan:#26e7ff;
-    --violet:#9b59ff;
-    --pink:#ff48db;
-    --orange:#ff9d24;
-    --gold:#ffd34f;
-
-    --glowStrength:1.55;
-    --backingOpacity:.22;
+    --glow:1;
+    --plate:.10;
   }
 
-  html, body{
+  *{ box-sizing:border-box; }
+
+  html,body{
     margin:0;
-    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
     background:transparent !important;
-    overflow:visible;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family:Arial,Helvetica,sans-serif;
   }
 
-  /* Taller, less banner-like canvas */
-  body{
-    width:1420px;
-    height:980px;
-    background:transparent !important;
-  }
-
-  #page{
-    position:relative;
-    width:1420px;
-    height:980px;
-    background:transparent !important;
-    overflow:visible;
-  }
-
-  #floorOverlay{
+  #stage{
     position:absolute;
-    left:18px;
-    bottom:20px;
-    width:1340px;
+    inset:0;
+    overflow:hidden;
+    background:transparent;
+  }
+
+  /*
+    This is the FLAT source panel.
+    JavaScript maps its 4 corners to the 4 destination floor points
+    using a real projective transform (homography / matrix3d).
+  */
+  #hud{
+    position:absolute;
+    left:0;
+    top:0;
+
+    width:1000px;
+    height:520px;
+
+    padding:34px 42px 36px;
+
     color:var(--white);
-    background:transparent !important;
 
-    transform-origin:left bottom;
-
-    /* less flattening = more visible carpet depth */
-    transform:
-      scale(1)
-      perspective(980px)
-      rotateX(49deg)
-      rotateZ(-2deg);
-
-    opacity:.995;
-    isolation:isolate;
-    backface-visibility:hidden;
-    -webkit-font-smoothing:antialiased;
-    text-rendering:geometricPrecision;
-  }
-
-  /* deep translucent carpet */
-  #floorOverlay::before{
-    content:"";
-    position:absolute;
-    left:-36px;
-    top:-40px;
-    width:1280px;
-    height:800px;
-    border-radius:38px;
+    transform-origin:0 0;
+    will-change:transform;
 
     background:
       linear-gradient(
         180deg,
-        rgba(255,255,255,calc(var(--backingOpacity) * .72)),
-        rgba(255,255,255,calc(var(--backingOpacity) * .26))
+        rgba(255,255,255,calc(var(--plate) * .72)),
+        rgba(255,255,255,calc(var(--plate) * .14))
       );
 
-    box-shadow:
-      0 0 64px rgba(255,255,255,calc(var(--backingOpacity) * .34)),
-      0 0 120px rgba(255,255,255,calc(var(--backingOpacity) * .14)),
-      inset 0 0 1px rgba(255,255,255,.30);
+    border-radius:28px;
 
-    filter:blur(1.4px);
-    z-index:-4;
-    pointer-events:none;
+    box-shadow:
+      0 0 calc(18px * var(--glow)) rgba(255,255,255,.12),
+      0 0 calc(28px * var(--glow)) rgba(37,231,255,.08);
+
+    isolation:isolate;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:geometricPrecision;
   }
 
-  /* broader glow spread across the full carpet depth */
-  #floorOverlay::after{
+  /* Tight floor bloom — deliberately restrained */
+  #hud::before{
     content:"";
     position:absolute;
-    left:-10px;
-    top:330px;
-    width:1180px;
-    height:380px;
+    z-index:-1;
+
+    left:4%;
+    right:4%;
+    bottom:3%;
+    height:42%;
+
     border-radius:50%;
 
     background:
-      radial-gradient(ellipse at 12% 45%,
-        rgba(38,231,255,.31) 0%,
-        rgba(38,231,255,.16) 25%,
-        rgba(38,231,255,0) 56%),
+      radial-gradient(
+        ellipse at 15% 54%,
+        rgba(37,231,255,.18) 0%,
+        rgba(37,231,255,.08) 25%,
+        rgba(37,231,255,0) 52%
+      ),
+      radial-gradient(
+        ellipse at 47% 54%,
+        rgba(152,88,255,.16) 0%,
+        rgba(152,88,255,.07) 26%,
+        rgba(152,88,255,0) 55%
+      ),
+      radial-gradient(
+        ellipse at 76% 54%,
+        rgba(255,69,213,.10) 0%,
+        rgba(255,69,213,.045) 22%,
+        rgba(255,69,213,0) 50%
+      ),
+      radial-gradient(
+        ellipse at 93% 54%,
+        rgba(255,156,36,.12) 0%,
+        rgba(255,156,36,.05) 20%,
+        rgba(255,156,36,0) 48%
+      );
 
-      radial-gradient(ellipse at 44% 50%,
-        rgba(155,89,255,.27) 0%,
-        rgba(155,89,255,.13) 26%,
-        rgba(155,89,255,0) 58%),
-
-      radial-gradient(ellipse at 70% 54%,
-        rgba(255,72,219,.21) 0%,
-        rgba(255,72,219,.11) 22%,
-        rgba(255,72,219,0) 55%),
-
-      radial-gradient(ellipse at 92% 56%,
-        rgba(255,157,36,.23) 0%,
-        rgba(255,157,36,.11) 20%,
-        rgba(255,157,36,0) 52%);
-
-    filter:blur(40px);
-    z-index:-3;
+    filter:blur(calc(18px * var(--glow)));
     pointer-events:none;
   }
 
   .title{
-    font-size:88px;
-    line-height:1;
-    font-weight:800;
-    letter-spacing:14px;
-    text-transform:uppercase;
+    font-size:70px;
+    line-height:.96;
+    font-weight:900;
+    letter-spacing:10px;
     white-space:nowrap;
 
     text-shadow:
-      0 0 calc(14px * var(--glowStrength)) rgba(255,255,255,.99),
-      0 0 calc(26px * var(--glowStrength)) rgba(38,231,255,.22),
-      0 4px 6px rgba(0,0,0,.22);
+      0 0 calc(6px * var(--glow)) rgba(255,255,255,.88),
+      0 0 calc(12px * var(--glow)) rgba(37,231,255,.12),
+      0 3px 4px rgba(0,0,0,.25);
   }
 
   .accent{
-    width:1080px;
-    height:9px;
-    margin:32px 0 44px;
+    width:100%;
+    height:7px;
+
+    margin:22px 0 30px;
+
     border-radius:999px;
 
-    background:linear-gradient(
-      90deg,
-      var(--cyan) 0%,
-      var(--violet) 34%,
-      var(--pink) 58%,
-      var(--orange) 82%,
-      var(--gold) 100%
-    );
+    background:
+      linear-gradient(
+        90deg,
+        var(--cyan) 0%,
+        var(--violet) 34%,
+        var(--pink) 60%,
+        var(--orange) 84%,
+        var(--gold) 100%
+      );
 
     box-shadow:
-      0 0 calc(18px * var(--glowStrength)) rgba(38,231,255,.82),
-      0 0 calc(30px * var(--glowStrength)) rgba(155,89,255,.38),
-      0 0 calc(34px * var(--glowStrength)) rgba(255,157,36,.24);
+      0 0 calc(7px * var(--glow)) rgba(37,231,255,.62),
+      0 0 calc(12px * var(--glow)) rgba(152,88,255,.22),
+      0 0 calc(14px * var(--glow)) rgba(255,156,36,.14);
   }
 
   .meta{
+    width:100%;
+
     display:flex;
     align-items:baseline;
     justify-content:space-between;
-    width:1120px;
 
-    font-size:96px;
+    font-size:68px;
     line-height:1;
-    font-weight:800;
-    letter-spacing:2px;
+    font-weight:900;
+    letter-spacing:1px;
+
     color:var(--muted);
     white-space:nowrap;
 
     text-shadow:
-      0 0 calc(12px * var(--glowStrength)) rgba(255,255,255,.94),
-      0 0 calc(22px * var(--glowStrength)) rgba(38,231,255,.14),
-      0 4px 6px rgba(0,0,0,.20);
+      0 0 calc(5px * var(--glow)) rgba(255,255,255,.78),
+      0 2px 4px rgba(0,0,0,.22);
   }
 
   .meta strong{
@@ -188,167 +180,379 @@
     font-weight:900;
   }
 
-  /* Big, but contained under the block above */
   .time{
-    margin-top:64px;
-    width:1120px;
+    margin-top:44px;
 
-    font-size:255px;
-    line-height:.90;
+    width:100%;
+
+    font-size:205px;
+    line-height:.84;
     font-weight:900;
-    letter-spacing:2px;
-    font-variant-numeric:tabular-nums;
+    letter-spacing:0;
     white-space:nowrap;
+    font-variant-numeric:tabular-nums;
 
-    transform:scaleX(.94);
+    /* timer stays comfortably within the block above */
+    transform:scaleX(.86);
     transform-origin:left center;
 
     text-shadow:
-      0 0 calc(20px * var(--glowStrength)) rgba(255,255,255,.998),
-      0 0 calc(36px * var(--glowStrength)) rgba(38,231,255,.38),
-      0 0 calc(50px * var(--glowStrength)) rgba(155,89,255,.15),
-      0 4px 6px rgba(0,0,0,.16);
+      0 0 calc(8px * var(--glow)) rgba(255,255,255,.94),
+      0 0 calc(15px * var(--glow)) rgba(37,231,255,.20),
+      0 0 calc(22px * var(--glow)) rgba(152,88,255,.08),
+      0 3px 5px rgba(0,0,0,.18);
+  }
+
+  /*
+    Calibration guide.
+    Turn on with &guide=1
+  */
+  #guide{
+    display:none;
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:20;
+  }
+
+  #guide svg{
+    width:100%;
+    height:100%;
+  }
+
+  #guide polygon{
+    fill:rgba(255,255,255,.035);
+    stroke:rgba(255,255,255,.92);
+    stroke-width:2;
+    stroke-dasharray:10 8;
+  }
+
+  #guide circle{
+    fill:#ffffff;
+    stroke:#000000;
+    stroke-width:2;
+  }
+
+  #guide text{
+    fill:#ffffff;
+    stroke:#000000;
+    stroke-width:3;
+    paint-order:stroke;
+    font-size:18px;
+    font-weight:700;
   }
 </style>
 </head>
 
 <body>
-  <div id="page">
-    <div id="floorOverlay">
-      <div class="title">PROJECT INDRAJEET</div>
-      <div class="accent"></div>
 
-      <div class="meta">
-        <div>DAY <strong id="day">1</strong></div>
-        <div><strong id="progress">0</strong> / 1000 H</div>
-      </div>
+<div id="stage">
+  <div id="hud">
+    <div class="title">PROJECT INDRAJEET</div>
+    <div class="accent"></div>
 
-      <div class="time" id="elapsed">00:00:00</div>
+    <div class="meta">
+      <div>DAY <strong id="day">1</strong></div>
+      <div><strong id="progress">0</strong> / 1000 H</div>
     </div>
+
+    <div class="time" id="elapsed">00:00:00</div>
   </div>
+
+  <div id="guide">
+    <svg id="guideSvg" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <polygon id="guidePoly" points=""></polygon>
+
+      <circle id="ctl" r="1.2"></circle>
+      <circle id="ctr" r="1.2"></circle>
+      <circle id="cbr" r="1.2"></circle>
+      <circle id="cbl" r="1.2"></circle>
+
+      <text id="ttl">TL</text>
+      <text id="ttr">TR</text>
+      <text id="tbr">BR</text>
+      <text id="tbl">BL</text>
+    </svg>
+  </div>
+</div>
 
 <script>
 (() => {
-  const params = new URLSearchParams(window.location.search);
-  const floor = document.getElementById("floorOverlay");
-  const root = document.documentElement;
-  const body = document.body;
-  const page = document.getElementById("page");
+  const q = new URLSearchParams(location.search);
 
-  function numberParam(name, fallback, min, max){
-    const raw = parseFloat(params.get(name));
-    if (!Number.isFinite(raw)) return fallback;
-    return Math.max(min, Math.min(max, raw));
+  const hud = document.getElementById("hud");
+  const root = document.documentElement;
+
+  const SOURCE_W = 1000;
+  const SOURCE_H = 520;
+
+  function num(name,fallback,min,max){
+    const n = parseFloat(q.get(name));
+    if(!Number.isFinite(n)) return fallback;
+    return Math.max(min,Math.min(max,n));
   }
 
-  const dayRaw = parseInt(params.get("day") || "1", 10);
+  /* ---------------------------
+     CONTENT
+  --------------------------- */
+
+  const dayRaw = parseInt(q.get("day") || "1",10);
   const day = Number.isFinite(dayRaw) && dayRaw > 0 ? dayRaw : 1;
 
-  const baseRaw = parseFloat(params.get("base") || "0");
-  const baseHours = Number.isFinite(baseRaw) && baseRaw >= 0 ? baseRaw : 0;
+  const baseRaw = parseFloat(q.get("base") || "0");
+  const base = Number.isFinite(baseRaw) && baseRaw >= 0 ? baseRaw : 0;
 
   document.getElementById("day").textContent = String(day);
 
-  /* Deep-carpet geometry defaults */
-  const tilt = numberParam("tilt", 49, 20, 75);
-  const roll = numberParam("roll", -2, -20, 20);
-  const perspective = numberParam("perspective", 980, 300, 2200);
-  const opacity = numberParam("opacity", 0.995, 0.2, 1);
-  const size = numberParam("size", 1, 0.4, 2.0);
+  /* ---------------------------
+     LOOK
+  --------------------------- */
 
-  floor.style.transform =
-    `scale(${size}) perspective(${perspective}px) rotateX(${tilt}deg) rotateZ(${roll}deg)`;
+  const glow = num("glow",1,0,3);
+  const plate = num("bgopacity",.10,0,.55);
 
-  floor.style.opacity = opacity;
+  root.style.setProperty("--glow",glow);
+  root.style.setProperty("--plate",plate);
 
-  const backing = numberParam("bgopacity", 0.22, 0, 0.7);
-  const glow = numberParam("glow", 1.55, 0, 4);
+  /* ---------------------------
+     FOUR-CORNER FLOOR GEOMETRY
 
-  root.style.setProperty("--backingOpacity", backing);
-  root.style.setProperty("--glowStrength", glow);
+     Values are percentages of the PRISM web-source viewport.
 
-  function fitPageToContent(){
-    const rect = floor.getBoundingClientRect();
-    const w = Math.ceil(rect.width + 90);
-    const h = Math.ceil(rect.height + 90);
+     Default shape:
+          TL -------- TR
+         /              \
+        /                \
+       BL ---------------- BR
 
-    body.style.width = w + "px";
-    body.style.height = h + "px";
+     Example:
+     &tlx=14&tly=22
+     &trx=82&try=17
+     &brx=96&bry=93
+     &blx=3&bly=95
+  --------------------------- */
 
-    page.style.width = w + "px";
-    page.style.height = h + "px";
+  function getPoints(){
+    return {
+      tl:{
+        x:num("tlx",14,0,100),
+        y:num("tly",22,0,100)
+      },
+      tr:{
+        x:num("trx",82,0,100),
+        y:num("try",17,0,100)
+      },
+      br:{
+        x:num("brx",96,0,100),
+        y:num("bry",93,0,100)
+      },
+      bl:{
+        x:num("blx",3,0,100),
+        y:num("bly",95,0,100)
+      }
+    };
   }
 
-  function getStartMs(){
-    const startParam = params.get("start");
+  /*
+    Compute homography that maps a unit square to the requested quad.
+    Then adapt it to the actual 1000x520 source rectangle.
+  */
+  function quadHomography(p){
 
-    if (!startParam){
+    const x0=p.tl.x, y0=p.tl.y;
+    const x1=p.tr.x, y1=p.tr.y;
+    const x2=p.br.x, y2=p.br.y;
+    const x3=p.bl.x, y3=p.bl.y;
+
+    const dx1=x1-x2;
+    const dx2=x3-x2;
+    const dx3=x0-x1+x2-x3;
+
+    const dy1=y1-y2;
+    const dy2=y3-y2;
+    const dy3=y0-y1+y2-y3;
+
+    const den=dx1*dy2-dx2*dy1;
+
+    let g=0;
+    let h=0;
+
+    if(Math.abs(den) > 1e-9){
+      g=(dx3*dy2-dx2*dy3)/den;
+      h=(dx1*dy3-dx3*dy1)/den;
+    }
+
+    const a=x1-x0+g*x1;
+    const b=x3-x0+h*x3;
+    const c=x0;
+
+    const d=y1-y0+g*y1;
+    const e=y3-y0+h*y3;
+    const f=y0;
+
+    return {a,b,c,d,e,f,g,h};
+  }
+
+  function applyWarp(){
+
+    const vw=window.innerWidth;
+    const vh=window.innerHeight;
+
+    const pp=getPoints();
+
+    /* convert percentage points to pixels */
+    const p={
+      tl:{x:pp.tl.x/100*vw,y:pp.tl.y/100*vh},
+      tr:{x:pp.tr.x/100*vw,y:pp.tr.y/100*vh},
+      br:{x:pp.br.x/100*vw,y:pp.br.y/100*vh},
+      bl:{x:pp.bl.x/100*vw,y:pp.bl.y/100*vh}
+    };
+
+    const H=quadHomography(p);
+
+    /*
+      Homography was calculated for coordinates 0..1.
+      Convert source x and y from 0..SOURCE_W/H.
+    */
+    const a=H.a/SOURCE_W;
+    const b=H.b/SOURCE_H;
+    const c=H.c;
+
+    const d=H.d/SOURCE_W;
+    const e=H.e/SOURCE_H;
+    const f=H.f;
+
+    const g=H.g/SOURCE_W;
+    const h=H.h/SOURCE_H;
+
+    /*
+      CSS matrix3d layout:
+      x' = (a*x + b*y + c) / (g*x + h*y + 1)
+      y' = (d*x + e*y + f) / (g*x + h*y + 1)
+    */
+    hud.style.transform =
+      `matrix3d(
+        ${a},${d},0,${g},
+        ${b},${e},0,${h},
+        0,0,1,0,
+        ${c},${f},0,1
+      )`;
+
+    updateGuide(pp);
+  }
+
+  function updateGuide(p){
+
+    if(q.get("guide")!=="1") return;
+
+    const guide=document.getElementById("guide");
+    guide.style.display="block";
+
+    const poly=document.getElementById("guidePoly");
+
+    poly.setAttribute(
+      "points",
+      `${p.tl.x},${p.tl.y} ${p.tr.x},${p.tr.y} ${p.br.x},${p.br.y} ${p.bl.x},${p.bl.y}`
+    );
+
+    const items=[
+      ["ctl","ttl",p.tl],
+      ["ctr","ttr",p.tr],
+      ["cbr","tbr",p.br],
+      ["cbl","tbl",p.bl]
+    ];
+
+    items.forEach(([cid,tid,pt])=>{
+      const c=document.getElementById(cid);
+      const t=document.getElementById(tid);
+
+      c.setAttribute("cx",pt.x);
+      c.setAttribute("cy",pt.y);
+
+      t.setAttribute("x",pt.x+1.6);
+      t.setAttribute("y",pt.y-1.5);
+    });
+  }
+
+  window.addEventListener("resize",applyWarp);
+  applyWarp();
+
+  /* ---------------------------
+     TIMER
+  --------------------------- */
+
+  function getStart(){
+
+    const supplied=q.get("start");
+
+    if(!supplied){
       return Date.now();
     }
 
-    const parts = startParam.split(":").map(Number);
+    const parts=supplied.split(":").map(Number);
 
-    if (parts.length < 2 || parts.some(v => !Number.isFinite(v))){
+    if(
+      parts.length<2 ||
+      parts.some(v=>!Number.isFinite(v))
+    ){
       return Date.now();
     }
 
-    const now = new Date();
+    const now=new Date();
 
-    const h = Math.max(0, Math.min(23, parts[0]));
-    const m = Math.max(0, Math.min(59, parts[1]));
-    const s = Math.max(0, Math.min(59, parts[2] || 0));
+    const hh=Math.max(0,Math.min(23,parts[0]));
+    const mm=Math.max(0,Math.min(59,parts[1]));
+    const ss=Math.max(0,Math.min(59,parts[2] || 0));
 
     return new Date(
       now.getFullYear(),
       now.getMonth(),
       now.getDate(),
-      h, m, s, 0
+      hh,mm,ss,0
     ).getTime();
   }
 
-  const startMs = getStartMs();
+  const started=getStart();
 
-  function formatElapsed(totalSeconds){
-    totalSeconds = Math.max(0, Math.floor(totalSeconds));
+  function formatTime(seconds){
 
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = totalSeconds % 60;
+    seconds=Math.max(0,Math.floor(seconds));
+
+    const h=Math.floor(seconds/3600);
+    const m=Math.floor((seconds%3600)/60);
+    const s=seconds%60;
 
     return (
-      String(h).padStart(2, "0") + ":" +
-      String(m).padStart(2, "0") + ":" +
-      String(s).padStart(2, "0")
+      String(h).padStart(2,"0")+":"+
+      String(m).padStart(2,"0")+":"+
+      String(s).padStart(2,"0")
     );
   }
 
   function formatProgress(hours){
-    const rounded = Math.round(hours * 100) / 100;
-    return String(parseFloat(rounded.toFixed(2)));
+    const n=Math.round(hours*100)/100;
+    return String(parseFloat(n.toFixed(2)));
   }
 
-  function update(){
-    const elapsedSeconds = Math.max(0, (Date.now() - startMs) / 1000);
+  function tick(){
 
-    document.getElementById("elapsed").textContent =
-      formatElapsed(elapsedSeconds);
+    const sec=
+      Math.max(0,(Date.now()-started)/1000);
 
-    const liveProgress = Math.min(
-      1000,
-      baseHours + elapsedSeconds / 3600
-    );
+    document.getElementById("elapsed").textContent=
+      formatTime(sec);
 
-    document.getElementById("progress").textContent =
-      formatProgress(liveProgress);
+    document.getElementById("progress").textContent=
+      formatProgress(
+        Math.min(1000,base+sec/3600)
+      );
   }
 
-  update();
-  fitPageToContent();
-  setInterval(update, 250);
+  tick();
+  setInterval(tick,250);
 
-  setTimeout(fitPageToContent, 350);
-  setTimeout(fitPageToContent, 1000);
 })();
 </script>
+
 </body>
 </html>
