@@ -1,353 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Project Indrajeet — Deep Carpet Overlay</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Indrajeet — Responsive Carpet V2</title>
+
 <style>
   :root{
     --white:#ffffff;
-    --muted:rgba(255,255,255,.97);
-
-    --cyan:#26e7ff;
-    --violet:#9b59ff;
-    --pink:#ff48db;
-    --orange:#ff9d24;
-    --gold:#ffd34f;
-
-    --glowStrength:1.55;
-    --backingOpacity:.22;
+    --cyan:#22e8ff;
+    --violet:#9c58ff;
+    --pink:#ff46d8;
+    --orange:#ff9c24;
+    --gold:#ffd34d;
+    --glow:1.45;
+    --bg:.20;
   }
 
-  html, body{
+  *{ box-sizing:border-box; }
+
+  html,body{
     margin:0;
-    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
     background:transparent !important;
-    overflow:visible;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family:Arial,Helvetica,sans-serif;
   }
 
-  /* Taller, less banner-like canvas */
-  body{
-    width:1420px;
-    height:980px;
-    background:transparent !important;
+  /* PRISM may give us any viewport.
+     This stage simply centers one fixed-proportion design inside it. */
+  #stage{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    background:transparent;
   }
 
-  #page{
+  /* Outer wrapper is ONLY for auto-fit scaling. */
+  #fit{
+    width:1240px;
+    height:620px;
+    flex:0 0 auto;
+    transform-origin:center center;
+  }
+
+  /* The actual luminous "carpet". Its proportions never change. */
+  #carpet{
     position:relative;
-    width:1420px;
-    height:980px;
-    background:transparent !important;
-    overflow:visible;
-  }
+    width:1240px;
+    height:620px;
 
-  #floorOverlay{
-    position:absolute;
-    left:18px;
-    bottom:20px;
-    width:1340px;
+    padding:48px 58px 50px;
+
     color:var(--white);
-    background:transparent !important;
 
-    transform-origin:left bottom;
-
-    /* less flattening = more visible carpet depth */
+    transform-origin:center center;
     transform:
-      scale(1)
-      perspective(980px)
-      rotateX(49deg)
+      perspective(1150px)
+      rotateX(42deg)
       rotateZ(-2deg);
-
-    opacity:.995;
-    isolation:isolate;
-    backface-visibility:hidden;
-    -webkit-font-smoothing:antialiased;
-    text-rendering:geometricPrecision;
-  }
-
-  /* deep translucent carpet */
-  #floorOverlay::before{
-    content:"";
-    position:absolute;
-    left:-36px;
-    top:-40px;
-    width:1280px;
-    height:800px;
-    border-radius:38px;
 
     background:
       linear-gradient(
         180deg,
-        rgba(255,255,255,calc(var(--backingOpacity) * .72)),
-        rgba(255,255,255,calc(var(--backingOpacity) * .26))
+        rgba(255,255,255,calc(var(--bg) * .72)),
+        rgba(255,255,255,calc(var(--bg) * .22))
       );
 
-    box-shadow:
-      0 0 64px rgba(255,255,255,calc(var(--backingOpacity) * .34)),
-      0 0 120px rgba(255,255,255,calc(var(--backingOpacity) * .14)),
-      inset 0 0 1px rgba(255,255,255,.30);
+    border-radius:34px;
 
-    filter:blur(1.4px);
-    z-index:-4;
-    pointer-events:none;
+    box-shadow:
+      0 0 calc(34px * var(--glow))
+        rgba(255,255,255,calc(var(--bg) * .38)),
+      0 0 calc(80px * var(--glow))
+        rgba(34,232,255,calc(var(--bg) * .18));
+
+    isolation:isolate;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:geometricPrecision;
   }
 
-  /* broader glow spread across the full carpet depth */
-  #floorOverlay::after{
+  /* Soft coloured light on the "floor". */
+  #carpet::before{
     content:"";
     position:absolute;
-    left:-10px;
-    top:330px;
-    width:1180px;
-    height:380px;
+    z-index:-1;
+
+    left:38px;
+    right:38px;
+    bottom:24px;
+    height:270px;
+
     border-radius:50%;
 
     background:
-      radial-gradient(ellipse at 12% 45%,
-        rgba(38,231,255,.31) 0%,
-        rgba(38,231,255,.16) 25%,
-        rgba(38,231,255,0) 56%),
+      radial-gradient(ellipse at 13% 52%,
+        rgba(34,232,255,.32) 0%,
+        rgba(34,232,255,.13) 27%,
+        rgba(34,232,255,0) 58%),
+      radial-gradient(ellipse at 45% 52%,
+        rgba(156,88,255,.28) 0%,
+        rgba(156,88,255,.12) 28%,
+        rgba(156,88,255,0) 60%),
+      radial-gradient(ellipse at 72% 52%,
+        rgba(255,70,216,.21) 0%,
+        rgba(255,70,216,.09) 24%,
+        rgba(255,70,216,0) 56%),
+      radial-gradient(ellipse at 91% 52%,
+        rgba(255,156,36,.24) 0%,
+        rgba(255,156,36,.10) 22%,
+        rgba(255,156,36,0) 54%);
 
-      radial-gradient(ellipse at 44% 50%,
-        rgba(155,89,255,.27) 0%,
-        rgba(155,89,255,.13) 26%,
-        rgba(155,89,255,0) 58%),
-
-      radial-gradient(ellipse at 70% 54%,
-        rgba(255,72,219,.21) 0%,
-        rgba(255,72,219,.11) 22%,
-        rgba(255,72,219,0) 55%),
-
-      radial-gradient(ellipse at 92% 56%,
-        rgba(255,157,36,.23) 0%,
-        rgba(255,157,36,.11) 20%,
-        rgba(255,157,36,0) 52%);
-
-    filter:blur(40px);
-    z-index:-3;
+    filter:blur(calc(26px * var(--glow)));
     pointer-events:none;
   }
 
   .title{
-    font-size:88px;
-    line-height:1;
-    font-weight:800;
-    letter-spacing:14px;
-    text-transform:uppercase;
+    font-size:76px;
+    line-height:.96;
+    font-weight:900;
+    letter-spacing:12px;
     white-space:nowrap;
 
     text-shadow:
-      0 0 calc(14px * var(--glowStrength)) rgba(255,255,255,.99),
-      0 0 calc(26px * var(--glowStrength)) rgba(38,231,255,.22),
-      0 4px 6px rgba(0,0,0,.22);
+      0 0 calc(10px * var(--glow)) rgba(255,255,255,.98),
+      0 0 calc(22px * var(--glow)) rgba(34,232,255,.24),
+      0 3px 5px rgba(0,0,0,.28);
   }
 
   .accent{
-    width:1080px;
-    height:9px;
-    margin:32px 0 44px;
+    width:100%;
+    height:8px;
+    margin:24px 0 34px;
+
     border-radius:999px;
 
-    background:linear-gradient(
-      90deg,
-      var(--cyan) 0%,
-      var(--violet) 34%,
-      var(--pink) 58%,
-      var(--orange) 82%,
-      var(--gold) 100%
-    );
+    background:
+      linear-gradient(
+        90deg,
+        var(--cyan) 0%,
+        var(--violet) 33%,
+        var(--pink) 59%,
+        var(--orange) 83%,
+        var(--gold) 100%
+      );
 
     box-shadow:
-      0 0 calc(18px * var(--glowStrength)) rgba(38,231,255,.82),
-      0 0 calc(30px * var(--glowStrength)) rgba(155,89,255,.38),
-      0 0 calc(34px * var(--glowStrength)) rgba(255,157,36,.24);
+      0 0 calc(12px * var(--glow)) rgba(34,232,255,.84),
+      0 0 calc(24px * var(--glow)) rgba(156,88,255,.38),
+      0 0 calc(28px * var(--glow)) rgba(255,156,36,.23);
   }
 
   .meta{
+    width:100%;
+
     display:flex;
     align-items:baseline;
     justify-content:space-between;
-    width:1120px;
 
-    font-size:96px;
+    font-size:72px;
     line-height:1;
-    font-weight:800;
-    letter-spacing:2px;
-    color:var(--muted);
+    font-weight:900;
     white-space:nowrap;
 
     text-shadow:
-      0 0 calc(12px * var(--glowStrength)) rgba(255,255,255,.94),
-      0 0 calc(22px * var(--glowStrength)) rgba(38,231,255,.14),
-      0 4px 6px rgba(0,0,0,.20);
+      0 0 calc(9px * var(--glow)) rgba(255,255,255,.94),
+      0 0 calc(18px * var(--glow)) rgba(34,232,255,.14),
+      0 3px 5px rgba(0,0,0,.24);
   }
 
-  .meta strong{
-    color:var(--white);
-    font-weight:900;
-  }
-
-  /* Big, but contained under the block above */
   .time{
-    margin-top:64px;
-    width:1120px;
+    margin-top:50px;
 
-    font-size:255px;
-    line-height:.90;
+    width:100%;
+    font-size:225px;
+    line-height:.82;
     font-weight:900;
-    letter-spacing:2px;
-    font-variant-numeric:tabular-nums;
+    letter-spacing:1px;
     white-space:nowrap;
+    font-variant-numeric:tabular-nums;
 
-    transform:scaleX(.94);
+    /* Keeps timer inside same visual width as the text above. */
+    transform:scaleX(.84);
     transform-origin:left center;
 
     text-shadow:
-      0 0 calc(20px * var(--glowStrength)) rgba(255,255,255,.998),
-      0 0 calc(36px * var(--glowStrength)) rgba(38,231,255,.38),
-      0 0 calc(50px * var(--glowStrength)) rgba(155,89,255,.15),
-      0 4px 6px rgba(0,0,0,.16);
+      0 0 calc(14px * var(--glow)) rgba(255,255,255,1),
+      0 0 calc(30px * var(--glow)) rgba(34,232,255,.40),
+      0 0 calc(46px * var(--glow)) rgba(156,88,255,.17),
+      0 4px 6px rgba(0,0,0,.18);
   }
 </style>
 </head>
 
 <body>
-  <div id="page">
-    <div id="floorOverlay">
+<div id="stage">
+  <div id="fit">
+    <div id="carpet">
       <div class="title">PROJECT INDRAJEET</div>
       <div class="accent"></div>
 
       <div class="meta">
-        <div>DAY <strong id="day">1</strong></div>
-        <div><strong id="progress">0</strong> / 1000 H</div>
+        <div>DAY <span id="day">1</span></div>
+        <div><span id="progress">0</span> / 1000 H</div>
       </div>
 
       <div class="time" id="elapsed">00:00:00</div>
     </div>
   </div>
+</div>
 
 <script>
 (() => {
-  const params = new URLSearchParams(window.location.search);
-  const floor = document.getElementById("floorOverlay");
+  const q = new URLSearchParams(location.search);
+
+  const fit = document.getElementById("fit");
+  const carpet = document.getElementById("carpet");
   const root = document.documentElement;
-  const body = document.body;
-  const page = document.getElementById("page");
 
-  function numberParam(name, fallback, min, max){
-    const raw = parseFloat(params.get(name));
-    if (!Number.isFinite(raw)) return fallback;
-    return Math.max(min, Math.min(max, raw));
+  function num(name,fallback,min,max){
+    const n=parseFloat(q.get(name));
+    if(!Number.isFinite(n)) return fallback;
+    return Math.max(min,Math.min(max,n));
   }
 
-  const dayRaw = parseInt(params.get("day") || "1", 10);
-  const day = Number.isFinite(dayRaw) && dayRaw > 0 ? dayRaw : 1;
+  /* ---------------- CONTENT ---------------- */
 
-  const baseRaw = parseFloat(params.get("base") || "0");
-  const baseHours = Number.isFinite(baseRaw) && baseRaw >= 0 ? baseRaw : 0;
+  const d=parseInt(q.get("day") || "1",10);
+  document.getElementById("day").textContent =
+    Number.isFinite(d) && d>0 ? String(d) : "1";
 
-  document.getElementById("day").textContent = String(day);
+  const b=parseFloat(q.get("base") || "0");
+  const base=Number.isFinite(b) && b>=0 ? b : 0;
 
-  /* Deep-carpet geometry defaults */
-  const tilt = numberParam("tilt", 49, 20, 75);
-  const roll = numberParam("roll", -2, -20, 20);
-  const perspective = numberParam("perspective", 980, 300, 2200);
-  const opacity = numberParam("opacity", 0.995, 0.2, 1);
-  const size = numberParam("size", 1, 0.4, 2.0);
+  /* ---------------- LOOK ---------------- */
 
-  floor.style.transform =
-    `scale(${size}) perspective(${perspective}px) rotateX(${tilt}deg) rotateZ(${roll}deg)`;
+  const tilt=num("tilt",42,20,65);
+  const roll=num("roll",-2,-15,15);
+  const perspective=num("perspective",1150,500,2500);
+  const fill=num("fill",.94,.50,1);
+  const glow=num("glow",1.45,0,4);
+  const bg=num("bgopacity",.20,0,.65);
 
-  floor.style.opacity = opacity;
+  root.style.setProperty("--glow",glow);
+  root.style.setProperty("--bg",bg);
 
-  const backing = numberParam("bgopacity", 0.22, 0, 0.7);
-  const glow = numberParam("glow", 1.55, 0, 4);
+  carpet.style.transform =
+    `perspective(${perspective}px)
+     rotateX(${tilt}deg)
+     rotateZ(${roll}deg)`;
 
-  root.style.setProperty("--backingOpacity", backing);
-  root.style.setProperty("--glowStrength", glow);
+  /* ---------------- TRUE RESPONSIVE FIT ----------------
+     Measure the transformed carpet, then scale the wrapper
+     so the WHOLE thing fits inside the current viewport.
+     This works in portrait Chrome and landscape PRISM.
+  ------------------------------------------------------ */
 
-  function fitPageToContent(){
-    const rect = floor.getBoundingClientRect();
-    const w = Math.ceil(rect.width + 90);
-    const h = Math.ceil(rect.height + 90);
+  function autoFit(){
+    fit.style.transform="scale(1)";
 
-    body.style.width = w + "px";
-    body.style.height = h + "px";
+    requestAnimationFrame(()=>{
+      const r=carpet.getBoundingClientRect();
 
-    page.style.width = w + "px";
-    page.style.height = h + "px";
+      const vw=window.innerWidth;
+      const vh=window.innerHeight;
+
+      const sx=(vw * fill) / r.width;
+      const sy=(vh * fill) / r.height;
+
+      const s=Math.min(sx,sy);
+
+      fit.style.transform=`scale(${s})`;
+    });
   }
 
-  function getStartMs(){
-    const startParam = params.get("start");
+  window.addEventListener("resize",autoFit);
+  autoFit();
+  setTimeout(autoFit,100);
+  setTimeout(autoFit,500);
 
-    if (!startParam){
+  /* ---------------- TIMER ---------------- */
+
+  function getStart(){
+    const supplied=q.get("start");
+
+    if(!supplied) return Date.now();
+
+    const p=supplied.split(":").map(Number);
+
+    if(p.length<2 || p.some(v=>!Number.isFinite(v))){
       return Date.now();
     }
 
-    const parts = startParam.split(":").map(Number);
+    const now=new Date();
 
-    if (parts.length < 2 || parts.some(v => !Number.isFinite(v))){
-      return Date.now();
-    }
-
-    const now = new Date();
-
-    const h = Math.max(0, Math.min(23, parts[0]));
-    const m = Math.max(0, Math.min(59, parts[1]));
-    const s = Math.max(0, Math.min(59, parts[2] || 0));
+    const h=Math.max(0,Math.min(23,p[0]));
+    const m=Math.max(0,Math.min(59,p[1]));
+    const s=Math.max(0,Math.min(59,p[2] || 0));
 
     return new Date(
       now.getFullYear(),
       now.getMonth(),
       now.getDate(),
-      h, m, s, 0
+      h,m,s,0
     ).getTime();
   }
 
-  const startMs = getStartMs();
+  const started=getStart();
 
-  function formatElapsed(totalSeconds){
-    totalSeconds = Math.max(0, Math.floor(totalSeconds));
+  function formatTime(seconds){
+    seconds=Math.max(0,Math.floor(seconds));
 
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = totalSeconds % 60;
+    const h=Math.floor(seconds/3600);
+    const m=Math.floor((seconds%3600)/60);
+    const s=seconds%60;
 
     return (
-      String(h).padStart(2, "0") + ":" +
-      String(m).padStart(2, "0") + ":" +
-      String(s).padStart(2, "0")
+      String(h).padStart(2,"0")+":"+
+      String(m).padStart(2,"0")+":"+
+      String(s).padStart(2,"0")
     );
   }
 
   function formatProgress(hours){
-    const rounded = Math.round(hours * 100) / 100;
-    return String(parseFloat(rounded.toFixed(2)));
+    const n=Math.round(hours*100)/100;
+    return String(parseFloat(n.toFixed(2)));
   }
 
-  function update(){
-    const elapsedSeconds = Math.max(0, (Date.now() - startMs) / 1000);
+  function tick(){
+    const sec=Math.max(0,(Date.now()-started)/1000);
 
-    document.getElementById("elapsed").textContent =
-      formatElapsed(elapsedSeconds);
+    document.getElementById("elapsed").textContent=
+      formatTime(sec);
 
-    const liveProgress = Math.min(
-      1000,
-      baseHours + elapsedSeconds / 3600
-    );
-
-    document.getElementById("progress").textContent =
-      formatProgress(liveProgress);
+    document.getElementById("progress").textContent=
+      formatProgress(
+        Math.min(1000,base+sec/3600)
+      );
   }
 
-  update();
-  fitPageToContent();
-  setInterval(update, 250);
+  tick();
+  setInterval(tick,250);
 
-  setTimeout(fitPageToContent, 350);
-  setTimeout(fitPageToContent, 1000);
+  /* Optional browser preview background:
+     add &preview=1 to see it against dark gray in Chrome.
+     PRISM should use the normal transparent version. */
+  if(q.get("preview")==="1"){
+    document.body.style.background="#5d6065";
+  }
 })();
 </script>
 </body>
