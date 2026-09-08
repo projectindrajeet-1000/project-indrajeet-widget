@@ -1,267 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Indrajeet — Vivid Glow Floor Overlay</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Project Indrajeet — Deep Carpet Overlay</title>
 <style>
   :root{
     --white:#ffffff;
-    --muted:rgba(255,255,255,.92);
+    --muted:rgba(255,255,255,.97);
 
-    /* More vivid logo-inspired accents */
-    --cyan:#19e6ff;
-    --violet:#9d4dff;
-    --pink:#ff3bd4;
-    --orange:#ff9a1f;
-    --gold:#ffd24a;
+    --cyan:#26e7ff;
+    --violet:#9b59ff;
+    --pink:#ff48db;
+    --orange:#ff9d24;
+    --gold:#ffd34f;
 
-    --baseOpacity:.98;
-    --backingOpacity:.20;
-    --glowStrength:1.28;
+    --glowStrength:1.55;
+    --backingOpacity:.22;
   }
 
   html, body{
     margin:0;
     padding:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
     background:transparent !important;
+    overflow:visible;
     font-family:Arial, Helvetica, sans-serif;
   }
 
+  /* Taller, less banner-like canvas */
   body{
+    width:1420px;
+    height:980px;
+    background:transparent !important;
+  }
+
+  #page{
     position:relative;
+    width:1420px;
+    height:980px;
+    background:transparent !important;
+    overflow:visible;
   }
 
   #floorOverlay{
     position:absolute;
-    left:26px;
-    bottom:28px;
-    width:max-content;
-    min-width:660px;
-
+    left:18px;
+    bottom:20px;
+    width:1340px;
     color:var(--white);
     background:transparent !important;
 
     transform-origin:left bottom;
+
+    /* less flattening = more visible carpet depth */
     transform:
-      perspective(900px)
-      rotateX(58deg)
+      scale(1)
+      perspective(980px)
+      rotateX(49deg)
       rotateZ(-2deg);
 
-    opacity:var(--baseOpacity);
-
+    opacity:.995;
+    isolation:isolate;
     backface-visibility:hidden;
     -webkit-font-smoothing:antialiased;
     text-rendering:geometricPrecision;
-    isolation:isolate;
   }
 
-  /* faint translucent surface lift */
+  /* deep translucent carpet */
   #floorOverlay::before{
     content:"";
     position:absolute;
-    left:-24px;
-    top:-18px;
-    width:910px;
-    height:315px;
-
-    border-radius:26px;
+    left:-36px;
+    top:-40px;
+    width:1280px;
+    height:800px;
+    border-radius:38px;
 
     background:
       linear-gradient(
         180deg,
-        rgba(255,255,255,calc(var(--backingOpacity) * .55)),
-        rgba(255,255,255,calc(var(--backingOpacity) * .16))
+        rgba(255,255,255,calc(var(--backingOpacity) * .72)),
+        rgba(255,255,255,calc(var(--backingOpacity) * .26))
       );
 
     box-shadow:
-      0 0 34px rgba(255,255,255,calc(var(--backingOpacity) * .22)),
-      inset 0 0 1px rgba(255,255,255,.20);
+      0 0 64px rgba(255,255,255,calc(var(--backingOpacity) * .34)),
+      0 0 120px rgba(255,255,255,calc(var(--backingOpacity) * .14)),
+      inset 0 0 1px rgba(255,255,255,.30);
 
-    filter:blur(1.2px);
+    filter:blur(1.4px);
+    z-index:-4;
+    pointer-events:none;
+  }
+
+  /* broader glow spread across the full carpet depth */
+  #floorOverlay::after{
+    content:"";
+    position:absolute;
+    left:-10px;
+    top:330px;
+    width:1180px;
+    height:380px;
+    border-radius:50%;
+
+    background:
+      radial-gradient(ellipse at 12% 45%,
+        rgba(38,231,255,.31) 0%,
+        rgba(38,231,255,.16) 25%,
+        rgba(38,231,255,0) 56%),
+
+      radial-gradient(ellipse at 44% 50%,
+        rgba(155,89,255,.27) 0%,
+        rgba(155,89,255,.13) 26%,
+        rgba(155,89,255,0) 58%),
+
+      radial-gradient(ellipse at 70% 54%,
+        rgba(255,72,219,.21) 0%,
+        rgba(255,72,219,.11) 22%,
+        rgba(255,72,219,0) 55%),
+
+      radial-gradient(ellipse at 92% 56%,
+        rgba(255,157,36,.23) 0%,
+        rgba(255,157,36,.11) 20%,
+        rgba(255,157,36,0) 52%);
+
+    filter:blur(40px);
     z-index:-3;
     pointer-events:none;
   }
 
-  /* multicolour bloom beneath the HUD */
-  #floorOverlay::after{
-    content:"";
-    position:absolute;
-    left:20px;
-    top:142px;
-    width:790px;
-    height:190px;
-
-    border-radius:50%;
-
-    background:
-      radial-gradient(
-        ellipse at 22% 52%,
-        rgba(25,230,255,.28) 0%,
-        rgba(25,230,255,.13) 25%,
-        rgba(25,230,255,0) 52%
-      ),
-      radial-gradient(
-        ellipse at 50% 52%,
-        rgba(157,77,255,.26) 0%,
-        rgba(157,77,255,.12) 27%,
-        rgba(157,77,255,0) 55%
-      ),
-      radial-gradient(
-        ellipse at 78% 52%,
-        rgba(255,154,31,.25) 0%,
-        rgba(255,154,31,.11) 27%,
-        rgba(255,154,31,0) 56%
-      );
-
-    filter:blur(24px);
-    z-index:-2;
-    pointer-events:none;
-  }
-
   .title{
-    font-size:26px;
+    font-size:88px;
     line-height:1;
-    font-weight:700;
-    letter-spacing:7px;
+    font-weight:800;
+    letter-spacing:14px;
     text-transform:uppercase;
     white-space:nowrap;
 
     text-shadow:
-      0 0 calc(9px * var(--glowStrength)) rgba(255,255,255,.90),
-      0 0 calc(18px * var(--glowStrength)) rgba(25,230,255,.28),
-      0 3px 4px rgba(0,0,0,.42);
+      0 0 calc(14px * var(--glowStrength)) rgba(255,255,255,.99),
+      0 0 calc(26px * var(--glowStrength)) rgba(38,231,255,.22),
+      0 4px 6px rgba(0,0,0,.22);
   }
 
   .accent{
-    width:360px;
-    height:4px;
-    margin:14px 0 16px;
+    width:1080px;
+    height:9px;
+    margin:32px 0 44px;
     border-radius:999px;
 
     background:linear-gradient(
       90deg,
       var(--cyan) 0%,
-      var(--violet) 38%,
-      var(--pink) 62%,
+      var(--violet) 34%,
+      var(--pink) 58%,
       var(--orange) 82%,
       var(--gold) 100%
     );
 
     box-shadow:
-      0 0 calc(11px * var(--glowStrength)) rgba(25,230,255,.65),
-      0 0 calc(16px * var(--glowStrength)) rgba(157,77,255,.34),
-      0 0 calc(18px * var(--glowStrength)) rgba(255,154,31,.24);
+      0 0 calc(18px * var(--glowStrength)) rgba(38,231,255,.82),
+      0 0 calc(30px * var(--glowStrength)) rgba(155,89,255,.38),
+      0 0 calc(34px * var(--glowStrength)) rgba(255,157,36,.24);
   }
 
   .meta{
     display:flex;
     align-items:baseline;
-    gap:42px;
+    justify-content:space-between;
+    width:1120px;
 
-    color:var(--muted);
-    font-size:24px;
+    font-size:96px;
     line-height:1;
-    font-weight:700;
-    letter-spacing:1.5px;
+    font-weight:800;
+    letter-spacing:2px;
+    color:var(--muted);
     white-space:nowrap;
 
     text-shadow:
-      0 0 calc(8px * var(--glowStrength)) rgba(255,255,255,.78),
-      0 0 calc(16px * var(--glowStrength)) rgba(25,230,255,.18),
-      0 3px 4px rgba(0,0,0,.38);
+      0 0 calc(12px * var(--glowStrength)) rgba(255,255,255,.94),
+      0 0 calc(22px * var(--glowStrength)) rgba(38,231,255,.14),
+      0 4px 6px rgba(0,0,0,.20);
   }
 
   .meta strong{
     color:var(--white);
-    font-weight:800;
+    font-weight:900;
   }
 
+  /* Big, but contained under the block above */
   .time{
-    margin-top:20px;
+    margin-top:64px;
+    width:1120px;
 
-    font-size:112px;
-    line-height:.86;
+    font-size:255px;
+    line-height:.90;
     font-weight:900;
-    letter-spacing:3px;
+    letter-spacing:2px;
     font-variant-numeric:tabular-nums;
     white-space:nowrap;
 
+    transform:scaleX(.94);
+    transform-origin:left center;
+
     text-shadow:
-      0 0 calc(14px * var(--glowStrength)) rgba(255,255,255,.98),
-      0 0 calc(28px * var(--glowStrength)) rgba(25,230,255,.34),
-      0 0 calc(42px * var(--glowStrength)) rgba(157,77,255,.18),
-      0 4px 6px rgba(0,0,0,.28);
-  }
-
-  @media (max-width:800px){
-    #floorOverlay{
-      left:16px;
-      bottom:18px;
-      min-width:520px;
-    }
-
-    #floorOverlay::before{
-      width:710px;
-      height:245px;
-      left:-16px;
-      top:-14px;
-    }
-
-    #floorOverlay::after{
-      width:610px;
-      height:140px;
-      left:22px;
-      top:118px;
-    }
-
-    .title{
-      font-size:20px;
-      letter-spacing:5px;
-    }
-
-    .accent{
-      width:280px;
-      height:3px;
-      margin:11px 0 13px;
-    }
-
-    .meta{
-      gap:28px;
-      font-size:19px;
-    }
-
-    .time{
-      margin-top:15px;
-      font-size:82px;
-    }
+      0 0 calc(20px * var(--glowStrength)) rgba(255,255,255,.998),
+      0 0 calc(36px * var(--glowStrength)) rgba(38,231,255,.38),
+      0 0 calc(50px * var(--glowStrength)) rgba(155,89,255,.15),
+      0 4px 6px rgba(0,0,0,.16);
   }
 </style>
 </head>
 
 <body>
+  <div id="page">
+    <div id="floorOverlay">
+      <div class="title">PROJECT INDRAJEET</div>
+      <div class="accent"></div>
 
-<div id="floorOverlay">
-  <div class="title">Project Indrajeet</div>
-  <div class="accent"></div>
+      <div class="meta">
+        <div>DAY <strong id="day">1</strong></div>
+        <div><strong id="progress">0</strong> / 1000 H</div>
+      </div>
 
-  <div class="meta">
-    <div>DAY <strong id="day">1</strong></div>
-    <div><strong id="progress">0</strong> / 1000 H</div>
+      <div class="time" id="elapsed">00:00:00</div>
+    </div>
   </div>
-
-  <div class="time" id="elapsed">00:00:00</div>
-</div>
 
 <script>
 (() => {
   const params = new URLSearchParams(window.location.search);
   const floor = document.getElementById("floorOverlay");
   const root = document.documentElement;
+  const body = document.body;
+  const page = document.getElementById("page");
 
   function numberParam(name, fallback, min, max){
     const raw = parseFloat(params.get(name));
@@ -277,21 +249,35 @@
 
   document.getElementById("day").textContent = String(day);
 
-  const tilt = numberParam("tilt", 58, 20, 78);
+  /* Deep-carpet geometry defaults */
+  const tilt = numberParam("tilt", 49, 20, 75);
   const roll = numberParam("roll", -2, -20, 20);
-  const perspective = numberParam("perspective", 900, 350, 2000);
-  const opacity = numberParam("opacity", 0.98, 0.20, 1);
+  const perspective = numberParam("perspective", 980, 300, 2200);
+  const opacity = numberParam("opacity", 0.995, 0.2, 1);
+  const size = numberParam("size", 1, 0.4, 2.0);
 
   floor.style.transform =
-    `perspective(${perspective}px) rotateX(${tilt}deg) rotateZ(${roll}deg)`;
+    `scale(${size}) perspective(${perspective}px) rotateX(${tilt}deg) rotateZ(${roll}deg)`;
 
   floor.style.opacity = opacity;
 
-  const backing = numberParam("bgopacity", 0.20, 0, 0.7);
-  const glow = numberParam("glow", 1.28, 0, 3);
+  const backing = numberParam("bgopacity", 0.22, 0, 0.7);
+  const glow = numberParam("glow", 1.55, 0, 4);
 
   root.style.setProperty("--backingOpacity", backing);
   root.style.setProperty("--glowStrength", glow);
+
+  function fitPageToContent(){
+    const rect = floor.getBoundingClientRect();
+    const w = Math.ceil(rect.width + 90);
+    const h = Math.ceil(rect.height + 90);
+
+    body.style.width = w + "px";
+    body.style.height = h + "px";
+
+    page.style.width = w + "px";
+    page.style.height = h + "px";
+  }
 
   function getStartMs(){
     const startParam = params.get("start");
@@ -302,10 +288,7 @@
 
     const parts = startParam.split(":").map(Number);
 
-    if (
-      parts.length < 2 ||
-      parts.some(value => !Number.isFinite(value))
-    ){
+    if (parts.length < 2 || parts.some(v => !Number.isFinite(v))){
       return Date.now();
     }
 
@@ -345,8 +328,7 @@
   }
 
   function update(){
-    const elapsedSeconds =
-      Math.max(0, (Date.now() - startMs) / 1000);
+    const elapsedSeconds = Math.max(0, (Date.now() - startMs) / 1000);
 
     document.getElementById("elapsed").textContent =
       formatElapsed(elapsedSeconds);
@@ -361,9 +343,12 @@
   }
 
   update();
+  fitPageToContent();
   setInterval(update, 250);
+
+  setTimeout(fitPageToContent, 350);
+  setTimeout(fitPageToContent, 1000);
 })();
 </script>
-
 </body>
 </html>
