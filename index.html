@@ -7,10 +7,11 @@
 
 <!-- PRISM/GitHub Pages live overlay.
      URL example:
-     ?day=1&base=0&start=00:00:00
+     ?day=1&base=0&delay=90&start=00:00:00
 
      base = completed meditation HOURS before this session.
-     start = timer offset when the page loads.
+     delay = seconds to HOLD the timer at 00:00:00 after the page loads.
+     start = timer offset once the delay finishes.
 
      Optional sitting-floor corner overrides:
      tlx,tly,trx,try,brx,bry,blx,bly
@@ -221,6 +222,14 @@
   }
 
   const initialElapsed = Math.max(0, parseHMS(params.get("start") || "0"));
+
+  // PRE-START HOLD:
+  // The HUD loads immediately, but timer/progress remain frozen until
+  // delay seconds have passed. This gives you time to place the phone,
+  // start the livestream, walk into frame and sit down.
+  //
+  // Default = 90 seconds. Override in the URL with e.g. &delay=60 or &delay=120.
+  const delaySeconds = Math.max(0, getNum("delay", 90));
   const loadedAt = performance.now();
 
   function formatHMS(seconds) {
@@ -246,9 +255,13 @@
   }
 
   function updateClock() {
+    const sinceLoad = (performance.now() - loadedAt) / 1000;
+
+    // Hold both timer and cumulative progress completely still during setup.
     const elapsed =
-      initialElapsed +
-      (performance.now() - loadedAt) / 1000;
+      sinceLoad < delaySeconds
+        ? initialElapsed
+        : initialElapsed + (sinceLoad - delaySeconds);
 
     document.getElementById("timer").textContent =
       formatHMS(elapsed);
